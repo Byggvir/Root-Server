@@ -1,0 +1,95 @@
+---
+# (c) Thomas Arend, Rheinbach
+# E-Mail: thomas@arend-rhb.de
+# Date: 2020-05-05
+
+- name: Mount DVD
+  become: true
+  become_method: su
+  ignore_errors: true
+  raw: '[ -n "$(findmnt /dev/sr0)" ] || mount -r /dev/sr0'
+  when: installed is defined and installedFrom == 'dvd'
+
+# Before installing new software, update the system
+
+- name: Update the repositories
+  become: true
+  become_method: su
+  raw: "apt-get update -y"
+  tags:
+    - apt
+
+- name: Upgrade system
+  become: true
+  become_method: su
+  raw: "apt-get upgrade -y"
+  tags:
+    - apt
+
+# Make the host Ansible compatible
+
+- name: Install packages to make this server Ansible compatible
+  become: yes
+  become_method: su
+  raw: "apt-get install aptitude lsb-release apt-transport-https ca-certificates python dirmngr sudo -y"
+
+# Now we can allow the user to used sudo without password
+
+- name: Add user to group sudo
+  become: yes
+  become_method: su
+  raw: "/usr/sbin/adduser {{ ansible_user }} sudo"
+
+- name: Password less sudo step 1
+  become: yes
+  become_method: su
+  lineinfile:
+    path: /etc/sudoers
+    state: absent
+    regexp: '^%sudo.*ALL='
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Password less sudo step 2
+  become: yes
+  become_method: su
+  lineinfile:
+    path: /etc/sudoers
+    insertafter: '# Allow members of group sudo to execute any command'
+    line: '%sudo ALL=(ALL:ALL) NOPASSWD: ALL'
+    validate: /usr/sbin/visudo -cf %s
+
+#
+# The DVD is not signed and there are some other issues with using a DVD as package source
+# The following change resolves these issues.
+#
+
+- name: Trust CDROM in /etc/apt/source.list
+  become: yes
+  become_method: su
+  replace:
+    path: /etc/apt/sources.list
+    regexp: '^deb cdrom'
+    replace: 'deb [ trusted=yes allow-insecure=yes allow-weak=yes allow-downgrade-to-insecure=yes ] cdrom'
+  when: installed is defined and installedFrom == 'dvd'
+
+# Add admins to root authorized_keys
+
+- name: Add multiple authorized keys for admin team
+  become: yes
+  become_method: su
+  authorized_key:
+    user: root
+    state: present
+    key: "{{ lookup( 'file', '{{ item }}.pub' ) }}"
+  register: adminteam
+  loop:
+    - thomas
+
+- name: Collect only facts
+  become: yes
+  become_method: sudo
+  setup:
+
+
+# After these steps we have a minimal system which can be installed with ansible from the ansible_user
+...

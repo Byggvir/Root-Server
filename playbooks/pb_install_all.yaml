@@ -1,0 +1,105 @@
+---
+# Playbook to install all components via roles!
+# Thomas Arend
+# Stand 2019-07-08
+
+# Install common Linux components (for all servers)
+
+# Only needed after first installation
+
+# Eventually this step must be started 
+# with -k -K and ssh and become password
+
+# Stage 01
+#
+
+- name: Make hosts Ansible compatible and install admin account(s)
+  hosts: all
+  gather_facts: yes
+  become: true
+  tags:
+    - ansible-compatible
+  tasks:
+    - name:  Basic installation for all servers
+      include_role:
+        name: 00-ansible-compatible    # common components for all servers
+
+- name: Install common components
+  hosts: all
+  gather_facts: yes
+  become: true
+  tags:
+    - common
+  tasks:
+    - name:  Basic installation for all servers
+      include_role:
+        name: 01-common    # common components for all servers
+    
+# Stage 02
+#
+# Install supernode
+
+- name: Install host components
+  hosts: server
+  gather_facts: yes
+  become: true
+  tags:
+    - server
+  tasks:
+    - name: Apply all roles 
+      include_role:
+        name: "{{ required_role }}"
+      loop:
+        - modprobe
+        - routing
+        - gre-tunnel
+        - interfaces
+        - tunneldigger
+        - batman
+        - netfilter    # netfilter erst nach batman konfigurieren, da die devices erst jetzt bestehen 
+        # - vrf (funktioniert leider nicht)
+        - firewall
+        - radvd
+        - bird
+        - dhcpserver
+        - dnsserver
+        - ntpserver
+        - apache2
+        # - mapserver
+        - yanic
+        - respondd
+      loop_control:
+        loop_var: required_role 
+
+# Stage 03
+#
+# Installation / update completed
+# Just log our update  
+
+- name: Write installation / update date
+  hosts: all
+  become: true
+  tasks:
+    - name: Log update
+      shell: 'echo -e "Last updated by Ansible: $(date +%F\ %X)" >> /etc/supernode.version'
+
+# Stage 04
+#
+# Restart the hosts
+
+- name: Reboot the hosts finally
+  shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+  async: 1
+  poll: 0
+  ignore_errors: true
+
+- name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
+  wait_for:
+  port: 22
+  host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+  search_regex: OpenSSH
+    delay: 10
+  vars:
+    ansible_connection: local
+
+...

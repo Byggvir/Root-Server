@@ -1,0 +1,17 @@
+---
+#
+# Enhance a minimal Debian system to manage it with Ansible
+#
+# (c) Thomas Arend, Rheinbach
+# E-Mail: thomas@arend-rhb.de
+# Date: 2020-05-05
+
+- name: "Install host stage 01 - make host Ansible compatible"
+  include_tasks: tsk_stage-01.yaml
+
+#- name: "Install host stage 02 - change root password to an unknown value"
+#  include_tasks: tsk_stage-02.yaml
+
+
+# After these steps we have a minimal system which can be installed with Ansible from the ansible_user
+...

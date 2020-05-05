@@ -1,0 +1,13 @@
+---
+ansible_host: 'h2885104.stratoserver.net'
+ansible_user: thomas
+
+ip_dev: eth0
+
+provider:
+  name:   'strato'
+  domain: 'stratoserver.net'
+  ipv6:   '2a01:238:432f:ea00:6942:3722:c11:d631'
+  ipv6_net: '2a01:238:432f:ea00::'
+  ipv6_mask: 56 
+...

@@ -1,0 +1,40 @@
+---
+#
+# Main ansible role task for common installation 
+#
+# file: playbooks/roles/common/tasks/main.yaml
+#
+# Thomas Arend
+# Date 2019-04-13
+#
+#
+
+# Install all required packages
+
+- include_tasks: tsk_packages.yaml
+
+# Set IP addresses in /etc/hosts
+
+- include_tasks: tsk_etc_hosts.yaml
+
+# create our specioa /etc/resolv.conf
+
+- include_tasks: tsk_etc_resolv.yaml
+
+# Rotate logs
+
+- include_tasks: tsk_etc_logrotate.yaml
+
+# Update grub kernel parameter and grub_timeout
+
+- include_tasks: tsk_grub.yaml
+
+# Insert required modules in /etc/modules directory
+
+- include_tasks: tsk_etc_modules.yaml
+
+# Reboot and adjust clock
+
+- include_tasks: tsk_reboot.yaml
+
+...

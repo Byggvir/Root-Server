@@ -1,0 +1,10 @@
+---
+# My Raspberry Pi and other Debian hosts
+
+all:
+    children:
+        server:
+           hosts:
+             rserver:     # New root Server
+             vserver:     # Old Server
+...

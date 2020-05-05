@@ -1,0 +1,30 @@
+---
+# Root-Server
+# Thomas Arend
+# Date: 2019-04-19
+
+- name: "Keep only one week of backlogs step 1"
+  lineinfile: 
+    path: /etc/logrotate.conf
+    regexp: 'rotate .*'
+    firstmatch: yes
+    state: absent
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - logrotate
+    
+- name: "Keep only one week of backlogs step 2"
+  lineinfile:
+    path: /etc/logrotate.conf
+    insertafter: '# keep 4 weeks worth of backlogs'
+    firstmatch: yes
+    state: present
+    line: 'rotate 1'
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - logrotate
+...

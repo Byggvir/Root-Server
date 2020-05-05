@@ -1,0 +1,57 @@
+---
+# Playbook to install all components via roles!
+# Thomas Arend
+# Stand 2020-05-05
+
+#- name: Make hosts Ansible compatible and install admin account(s)
+#  hosts: all
+#  gather_facts: no
+#  become: true
+#  tasks:
+#    - name:  Basic installation for all servers
+#      include_role:
+#        name: "{{ required_role }}"
+#      loop:
+#        - 00-ansible-compatible    
+##     loop_control:
+#        loop_var: required_role 
+        
+- name: Make hosts Ansible compatible and install admin account(s)
+  hosts: all
+  gather_facts: yes
+  become: true
+  tasks:
+    - name:  Basic installation for all servers
+      include_role:
+        name: "{{ required_role }}"
+      loop:
+        - 01-common
+        - 02-modprobe
+        #- 03-routing     # wird derzeit nicht benötigt
+        #- 04-gre-tunnel  # wird derzeit nicht benötigt
+        #- 05-interfaces  # Umstellen vin /etc/network/interfaces auf /etc/systemd/networkd
+        #- tunneldigger
+        #- batman
+        #- netfilter
+        #- vrf (funktioniert leider nicht)
+        #- firewall
+        #- radvd
+        #- bird
+        #- routing
+        #- dhcpserver
+        #- dnsserver
+        #- ntpserver
+        #- respondd
+        #- yanic
+        #- apache2
+        #- mapserver
+      loop_control:
+        loop_var: required_role 
+
+#- name: Reboot the server finally
+   #shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+   #async: 1
+   #poll: 0
+   #ignore_errors: true
+
+...

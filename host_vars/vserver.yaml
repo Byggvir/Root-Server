@@ -1,0 +1,13 @@
+---
+ansible_host: h1383963.stratoserver.net
+ansible_user: thomas
+
+ip_dev: venet0
+
+provider:
+  name:   'strato'
+  domain: 'stratoserver.net'
+  ipv6:   '2a01:238:4216:400:2719:9f12:f159:ba3f'
+  ipv6_net: '2a01:238:4216:400:2719:9f12:f159:ba3f'
+  ipv6_mask: 128 
+...
